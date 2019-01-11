@@ -8,10 +8,54 @@ def main(args):
     process_rawdata()
     return 0
 
+# 예외적인 데이터를 입력하면 알아서 학습하여 처리합니다
+def process_special_token(token):
+    result = False
+
+    cases = [
+        "CAL_DATE CAL_ CA CA CA CA CAL_STRING",
+        "01-JUL-08 2008 07 01 27 1",
+        "02-JUL-08 2008 07 02 27 1",
+        "03-JUL-08 2008 07 03 27 1",
+        "04-JUL-08 2008 07 04 27 1",
+        "05-JUL-08 2008 07 05 27 1",
+        "PHASE_COEF ABX_C",
+        "11 B",
+        "1 B",
+        "1 C",
+        "3 A",
+        "3 C000000075",
+        "1 C000000022",
+        "2 C000000040",
+        "1 C000000008",
+        "1 C000000038",
+        "CONNECT_DATE CONNECT_IP",
+        "23-JUN-16 1.221.136.212",
+        "S C C C C",
+        "N N N N N"
+        "ROLE_SEQ U REG_DT",
+    ]
+
+    token_len = len(token)
+    token_words_len = len(token.split(" "))
+    token_rate = token_len / token_words_len
+
+    for case in cases:
+        case_len = len(token)
+        case_words_len = len(case.split(" "))
+        case_rate = case_len / case_words_len
+
+        if token_rate == case_rate:
+            result = True
+
+    return result
+
 def process_token(token):
     tokens = []
-    if token.startswith("Y ") or token.startswith("N "):
-        tokens = token.split(" ")
+    splited_tokens = token.split(" ")
+
+    if token.startswith("Y ") or token.startswith("N ") or process_special_token(token):
+        tokens = splited_tokens
     else:
         tokens.append(token)
     return tokens
@@ -24,13 +68,19 @@ def write_to_excel(data, tablename):
     wb = openpyxl.load_workbook('data/target2.xlsx')
     ws = wb.get_sheet_by_name('양식'.decode("utf-8"))
     for row in ws['H{}:P{}'.format(ws.min_row, ws.max_row)]:
+        row_num = row[0].row
         col_0_value = row[0].value # target table name
         col_5_value = row[5].value # target column name
 
         if col_0_value == tablenames[1]:
             for k in data:
                 if k == col_5_value:
-                    print("matched! " + str(k) + ": " + str(data[k])) 
+                    print("matched! (row: " + str(row_num) + ") " + str(k) + ": " + str(data[k]))
+                    ws['P{}'.format(row_num)] = str(data[k])
+                    #print(ws['P{}'.format(row_num)].value)
+
+    # save to file
+    wb.save("data/target2.xlsx")
 
     return False
 
@@ -110,7 +160,7 @@ def process_rawdata():
             lines = [] # reset lines
             is_buf = False
 
-            break # if debug
+            #break # if debug
 
         # store temporary lines
         if is_buf == True:
