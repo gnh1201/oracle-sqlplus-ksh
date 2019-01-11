@@ -1,2 +1,2 @@
-# oracle-sqlplus-ksh
-oracle, sqlplus, ksh example
+# oracle-to-mois-opendata
+oracle, sqlplus, ksh, mois opendata scheme example
