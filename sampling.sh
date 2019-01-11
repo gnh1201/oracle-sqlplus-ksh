@@ -1,7 +1,7 @@
 #!/bin/ksh
 
 # get tables
-(echo "SELECT concat(concat(owner, '.'), table_name) as tablename FROM all_tables WHERE owner = 'CERAMIC4';" | sqlplus '/as sysdba') > hello.txt
+(echo "SELECT concat(concat(owner, '.'), table_name) as tablename FROM all_tables WHERE owner = 'DBUSER';" | sqlplus '/as sysdba') > hello.txt
 
 file="hello.txt"
 # while loop
