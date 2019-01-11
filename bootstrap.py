@@ -15,8 +15,23 @@ def process_token(token):
     else:
         tokens.append(token)
     return tokens
-    
-def write_to_excel(data):
+
+def write_to_excel(data, tablename):
+    print("=== START PROCESSING EXCEL ===")
+
+    tablenames = tablename.split(".")
+
+    wb = openpyxl.load_workbook('data/target2.xlsx')
+    ws = wb.get_sheet_by_name('양식'.decode("utf-8"))
+    for row in ws['H{}:P{}'.format(ws.min_row, ws.max_row)]:
+        col_0_value = row[0].value # target table name
+        col_5_value = row[5].value # target column name
+
+        if col_0_value == tablenames[1]:
+            for k in data:
+                if k == col_5_value:
+                    print("matched! " + str(k) + ": " + str(data[k])) 
+
     return False
 
 def process_lines(lines):
@@ -68,7 +83,7 @@ def process_lines(lines):
         print(k + "\t\t" + data[k])
 
     # step 5: write to excel
-    write_to_excel(data)
+    write_to_excel(data, tablename)
 
     print("")
 
@@ -95,6 +110,8 @@ def process_rawdata():
             lines = [] # reset lines
             is_buf = False
 
+            break # if debug
+
         # store temporary lines
         if is_buf == True:
             lines.append(line)
@@ -106,4 +123,5 @@ def process_rawdata():
 
 if __name__ == '__main__':
     import sys
+    import openpyxl
     sys.exit(main(sys.argv))
